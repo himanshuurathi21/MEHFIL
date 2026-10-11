@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PurchaseType {
+  CHAI
+  MAGGIE
+  VISIT
+  COMBO
+}
+
+enum PaymentMode {
+  OFFLINE
+  ONLINE
+}
+
+enum PurchaseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RewardType {
+  BUN_MASKA
+  FREE_MAGGIE
+  FREE_CHAI
+  BIRTHDAY_CHAI
+}
+
+enum RewardStatus {
+  AVAILABLE
+  CLAIMED
+  REDEEMED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  displayName  String    @map("display_name")
+  role         Role      @default(USER)
+  birthdate    DateTime? @map("birthdate")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  purchases        Purchase[]
+  loyaltyProgress  LoyaltyProgress?
+  rewards          Reward[]
+  sessions         Session[]
+  approvedPurchases Purchase[] @relation("ApprovedPurchases")
+  redeemedRewards   Reward[]   @relation("RedeemedRewards")
+  adminActions      AdminAction[]
+
+  @@map("users")
+}
+
+model Purchase {
+  id              String         @id @default(cuid())
+  userId          String         @map("user_id")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchaseType    PurchaseType   @map("purchase_type")
+  chaiQty         Int            @default(0) @map("chai_qty")
+  maggieQty       Int            @default(0) @map("maggie_qty")
+  amount          Int
+  paymentMode     PaymentMode    @default(OFFLINE) @map("payment_mode")
+  transactionRef  String?        @map("transaction_ref")
+  status          PurchaseStatus @default(PENDING)
+  createdAt       DateTime       @default(now()) @map("created_at")
+  approvedAt      DateTime?      @map("approved_at")
+  rejectedAt      DateTime?      @map("rejected_at")
+  approvedBy      String?        @map("approved_by")
+  approver        User?          @relation("ApprovedPurchases", fields: [approvedBy], references: [id], onDelete: SetNull)
+  rejectionReason String?        @map("rejection_reason")
+  notes           String?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@map("purchases")
+}
+
+model LoyaltyProgress {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chaiCount          Int      @default(0) @map("chai_count")
+  maggieCount        Int      @default(0) @map("maggie_count")
+  eligibleVisitCount Int      @default(0) @map("eligible_visit_count")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("loyalty_progress")
+}
+
+model Reward {
+  id              String       @id @default(cuid())
+  userId          String       @map("user_id")
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardType      RewardType   @map("reward_type")
+  status          RewardStatus @default(AVAILABLE)
+  createdAt       DateTime     @default(now()) @map("created_at")
+  claimedAt       DateTime?    @map("claimed_at")
+  redeemedAt      DateTime?    @map("redeemed_at")
+  redemptionToken String?      @unique @map("redemption_token")
+  redeemedBy      String?      @map("redeemed_by")
+  redeemer        User?        @relation("RedeemedRewards", fields: [redeemedBy], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([redemptionToken])
+  @@map("rewards")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminId    String   @map("admin_id")
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  actionType String   @map("action_type")
+  targetType String   @map("target_type")
+  targetId   String   @map("target_id")
+  details    String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([adminId, createdAt])
+  @@map("admin_actions")
+}
