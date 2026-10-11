@@ -47,9 +47,7 @@ export default async function Landing() {
       </div>
 
       <section className="mt-8 rounded-[2rem] bg-[#2b1a0e] p-7 text-[#fdf8f0]">
-        <p className="text-xs font-bold tracking-[0.25em] text-[#d9a441]">मेहफिल • MEHFIL</p>
-        <h1 className="mt-2 text-5xl font-black tracking-[0.08em]">MEHFIL</h1>
-        <p className="mt-1 text-lg font-medium text-[#f2e2c9]">मेहफिल</p>
+        <h1 className="text-5xl font-black tracking-[0.08em]">MEHFIL</h1>
         <p className="mt-4 text-xl font-bold leading-snug">
           “Every Visit. Every Sip. Every Reward.”
         </p>
@@ -100,7 +98,7 @@ export default async function Landing() {
       </section>
 
       <footer className="mt-6 text-center text-xs text-[#7a4f26]">
-        MEHFIL • मेहफिल - Loyalty &amp; Rewards
+        MEHFIL - Loyalty &amp; Rewards
       </footer>
     </main>
   );

@@ -44,7 +44,6 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
         <p className={`font-extrabold tracking-[0.18em] text-[#2b1a0e] ${compact ? "text-base" : "text-xl"}`}>
           MEHFIL
         </p>
-        <p className="text-xs font-medium text-[#7a4f26]">मेहफिल</p>
       </div>
     </div>
   );
