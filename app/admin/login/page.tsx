@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BrandMark, Card, Field, PageShell, PrimaryButton, ToastProvider, useToast } from "@/components/ui";
+import { BrandMark, Card, Field, PageShell, PasswordField, PrimaryButton, ToastProvider, useToast } from "@/components/ui";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -51,7 +51,7 @@ function AdminLoginForm() {
         <p className="mt-1 text-center text-sm text-[#7a4f26]">Admin access only • मेहफिल</p>
         <form onSubmit={submit} className="mt-5 space-y-3">
           <Field label="Admin Username" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" />
-          <Field label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          <PasswordField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
           {error ? (
             <p role="alert" className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">{error}</p>
           ) : null}

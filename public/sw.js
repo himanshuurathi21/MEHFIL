@@ -1,5 +1,5 @@
 // Minimal MEHFIL service worker: cache-first for static GET, network-first for APIs/pages.
-const CACHE = "mehfil-v2";
+const CACHE = "mehfil-v3";
 const CORE = ["/", "/login", "/signup", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
