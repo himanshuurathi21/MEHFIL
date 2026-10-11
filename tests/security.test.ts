@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { extractTokenFromQrPayload, generateRedemptionToken } from "../lib/tokens";
 import { signupSchema, purchaseSchema, derivePaymentMode } from "../lib/validation";
+import { shouldFireScan } from "../components/qr-scanner";
 
 describe("reward tokens", () => {
   it("generates unique secure tokens", () => {
@@ -64,8 +65,7 @@ describe("email signup", () => {
   });
 });
 
-describe("transaction ref rule", () => {
-  it("0000 means offline, anything else means online", () => {
+describe("transaction ref rule", () => {  it("0000 means offline, anything else means online", () => {
     expect(derivePaymentMode("0000")).toBe("OFFLINE");
     expect(derivePaymentMode("  0000  ")).toBe("OFFLINE");
     expect(derivePaymentMode("412345678901")).toBe("ONLINE");
@@ -78,5 +78,25 @@ describe("transaction ref rule", () => {
     expect(empty.success).toBe(false);
     const missing = purchaseSchema.safeParse({ chaiQty: 2, amount: 35 });
     expect(missing.success).toBe(false);
+  });
+});
+
+describe("qr scan dedupe", () => {
+  const TOKEN = "MEHFIL-RWD-ABC123";
+  it("fires on first sighting", () => {
+    expect(shouldFireScan(null, TOKEN, 1000, 3000)).toBe(true);
+  });
+  it("suppresses the same QR within cooldown (no repeat popup)", () => {
+    const last = { text: TOKEN, at: 1000 };
+    expect(shouldFireScan(last, TOKEN, 1500, 3000)).toBe(false);
+    expect(shouldFireScan(last, TOKEN, 3999, 3000)).toBe(false);
+  });
+  it("fires again after cooldown (re-scan allowed)", () => {
+    const last = { text: TOKEN, at: 1000 };
+    expect(shouldFireScan(last, TOKEN, 4000, 3000)).toBe(true);
+  });
+  it("fires immediately for a different QR", () => {
+    const last = { text: TOKEN, at: 1000 };
+    expect(shouldFireScan(last, "MEHFIL-RWD-OTHER", 1200, 3000)).toBe(true);
   });
 });

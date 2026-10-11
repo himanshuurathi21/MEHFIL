@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BrandMark, Card, Field, PageShell, PrimaryButton, TopBar, ToastProvider, useToast } from "@/components/ui";
+import { BrandMark, Card, Field, PageShell, PasswordField, PrimaryButton, TopBar, ToastProvider, useToast } from "@/components/ui";
 
 function SignupForm() {
   const router = useRouter();
@@ -50,8 +50,8 @@ function SignupForm() {
         <form onSubmit={submit} className="mt-5 space-y-3">
           <Field label="Display Name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} autoComplete="name" required />
           <Field label="Email" type="email" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="email" required />
-          <Field label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
-          <Field label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" required />
+          <PasswordField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" required />
+          <PasswordField label="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" required />
           {error ? (
             <p role="alert" className="rounded-2xl bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
               {error}

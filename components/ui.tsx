@@ -125,6 +125,34 @@ export function Field({
   );
 }
 
+export function PasswordField({
+  label,
+  ...props
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> & { label: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold text-[#5a3a1e]">{label}</span>
+      <div className="relative">
+        <input
+          {...props}
+          type={show ? "text" : "password"}
+          className="min-h-[52px] w-full rounded-2xl border border-[#e5d3b3] bg-white py-2 pl-4 pr-14 text-base text-[#1c1008] placeholder:text-[#a08c6f]"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => !s)}
+          aria-label={show ? "Hide password" : "Show password"}
+          aria-pressed={show}
+          className="absolute inset-y-1 right-1 flex min-w-[48px] items-center justify-center rounded-xl px-3 text-xl"
+        >
+          <span aria-hidden>{show ? "🙈" : "👁️"}</span>
+        </button>
+      </div>
+    </label>
+  );
+}
+
 export function Progress({ value, max }: { value: number; max: number }) {
   const pct = max === 0 ? 0 : Math.min(100, Math.round((value / max) * 100));
   return (

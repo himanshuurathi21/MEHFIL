@@ -2,10 +2,35 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 
-export function QrScanner({ onScan }: { onScan: (text: string) => void }) {
+export type LastScan = { text: string; at: number } | null;
+
+/**
+ * Pure dedupe rule: the camera fires onScan on EVERY frame while a QR is
+ * visible (10 fps), so without this the page verifies + toasts repeatedly.
+ * Fire only when the token changed or the cooldown expired.
+ */
+export function shouldFireScan(
+  last: LastScan,
+  text: string,
+  now: number,
+  cooldownMs: number
+): boolean {
+  if (!last) return true;
+  if (last.text !== text) return true;
+  return now - last.at >= cooldownMs;
+}
+
+export function QrScanner({
+  onScan,
+  cooldownMs = 3000,
+}: {
+  onScan: (text: string) => void;
+  cooldownMs?: number;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const lastScanRef = useRef<LastScan>(null);
 
   useEffect(() => {
     return () => {
@@ -49,11 +74,17 @@ export function QrScanner({ onScan }: { onScan: (text: string) => void }) {
       }
       const scanner = new Html5Qrcode(elId);
       scannerRef.current = scanner;
+      lastScanRef.current = null;
       setScanning(true);
       await scanner.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 240, height: 240 } },
         (decoded) => {
+          // Same QR stays in view across frames - report it once per cooldown.
+          if (!shouldFireScan(lastScanRef.current, decoded, Date.now(), cooldownMs)) {
+            return;
+          }
+          lastScanRef.current = { text: decoded, at: Date.now() };
           onScan(decoded);
         },
         () => {}

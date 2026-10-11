@@ -27,6 +27,8 @@ function ScannerInner() {
       push("Enter or scan the token first.");
       return;
     }
+    // Skip repeat frames while a verification is already running.
+    if (busy) return;
     setBusy(true);
     setFound(null);
     setVerifiedToken(null);
